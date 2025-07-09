@@ -18,7 +18,7 @@ if not os.path.exists(csv_path):
     generate_synthetic_trades(num_trades=500, out_path=csv_path)
 
 st.set_page_config(page_title="Conversational Trade Agent", page_icon="💹")
-st.title("💹 Conversational Trade Agent")
+st.title("💹 Conversational Trade Agent (Trader Persona)")
 
 # Load trades and assign persona
 trades = load_trades(csv_path)
@@ -40,18 +40,17 @@ with st.expander("Trader Persona Details", expanded=True):
     """)
 
 st.markdown("---")
-
 st.markdown("#### Ask the trader agent a question:")
 
 # Initialize chat history
 if 'chat_history' not in st.session_state:
     st.session_state['chat_history'] = []
 
-# Add a Clear Chat button
+# Clear chat
 if st.button("Clear Chat"):
     st.session_state['chat_history'] = []
 
-# Enhanced cleaning to avoid sentence-level repetition
+# Text cleaning functions
 def clean_response_to_single_paragraph(text: str) -> str:
     text = re.sub(r'\n+', ' ', text.strip())
     sentences = re.split(r'(?<=[.!?])\s+', text)
@@ -64,21 +63,26 @@ def clean_response_to_single_paragraph(text: str) -> str:
             seen.add(stripped)
     return ' '.join(result)
 
+def strip_qa_leaks(text: str) -> str:
+    return re.sub(r"(User Question:|Trader's Answer:).*", "", text, flags=re.IGNORECASE | re.DOTALL).strip()
+
+# Form
 with st.form(key="qa_form", clear_on_submit=True):
     user_input = st.text_input("Your question", key="user_input")
     submit = st.form_submit_button("Ask")
     if submit and user_input.strip():
         logging.info(f"User question: {user_input}")
         with st.spinner("Thinking..."):
-            result = qa.invoke(user_input)
+            result = qa.invoke({"query": user_input})
             logging.info(f"Agent response: {result['answer']}")
             cleaned_answer = clean_response_to_single_paragraph(result['answer'])
+            cleaned_answer = strip_qa_leaks(cleaned_answer)
             st.session_state['chat_history'].append({
                 "question": user_input,
                 "answer": cleaned_answer
             })
 
-# Display chat history
+# Chat history display
 for chat in st.session_state['chat_history']:
     st.markdown(f"**You:** {chat['question']}")
     st.markdown(f"**Trader:** {chat['answer']}")
