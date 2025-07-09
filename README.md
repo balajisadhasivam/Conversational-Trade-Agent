@@ -27,7 +27,7 @@ This project implements a Retrieval-Augmented Generation (RAG) pipeline using th
 - **Model:** `meta-llama/Llama-3.3-70B-Instruct-Turbo`
 - **Provider:** Meta (Together.ai API)
 - **Purpose:**  
-  The LLM generates natural language responses to user queries, leveraging both its pre-trained knowledge and additional context retrieved from a synthetic knowledge base.
+  The LLM generates natural language responses to user queries, leveraging context retrieved from a synthetic knowledge base.
 
 ### 2. Embedding Model
 
