@@ -73,8 +73,6 @@ coverage.xml
 Thumbs.db
 Desktop.ini
 
-# Data files
-/data/*.csv
 
 # PDF or other large files
 *.pdf
